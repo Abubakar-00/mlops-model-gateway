@@ -1,0 +1,24 @@
+# Example cluster-wide runtime referenced by TASK_TYPE_CONFIGS["object-detection"].runtime
+apiVersion: serving.kserve.io/v1alpha1
+kind: ClusterServingRuntime
+metadata:
+  name: triton-onnx
+spec:
+  supportedModelFormats:
+    - name: onnx
+      version: "1"
+      autoSelect: true
+  protocolVersions: [v2, grpc-v2]
+  containers:
+    - name: kserve-container
+      image: nvcr.io/nvidia/tritonserver:24.08-py3
+      args:
+        - tritonserver
+        - --model-store=/mnt/models
+        - --grpc-port=9000
+        - --http-port=8080
+        - --allow-grpc=true
+        - --allow-http=true
+      resources:
+        limits:
+          nvidia.com/gpu: "1"

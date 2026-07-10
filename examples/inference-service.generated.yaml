@@ -1,0 +1,20 @@
+# What the gateway generates for:
+#   POST /serving-models/deploy {"task_type": "object-detection", "version": "v4", "environment": "staging"}
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: object-detection-svc
+  namespace: ml-staging
+spec:
+  predictor:
+    schedulerName: gpu-queue-scheduler        # GPU-aware queue scheduler
+    serviceAccountName: kserve-sa              # grants read access to the model store
+    labels:
+      scheduler/queue: inference               # separate queue from training workloads
+    annotations:
+      gpu-memory: "5000"                       # from TASK_TYPE_CONFIGS
+    model:
+      runtime: triton-onnx
+      modelFormat:
+        name: onnx
+      storageUri: s3://model-store/object-detection/v4/triton   # read from the model version's custom properties
